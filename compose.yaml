@@ -1,0 +1,35 @@
+services:
+  mysql-container:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: flightsdb
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    networks:
+      - my-network
+  spring-boot-app:
+    build:
+      context: .
+    container_name: spring-boot-app-container
+    depends_on:
+      - mysql-container
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/flightsdb&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+    volumes:
+      - .:/app
+    command: ["mvn", "spring-boot:run"]
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: bridge
+volumes:
+  mysql_data:
