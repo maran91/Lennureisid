@@ -21,19 +21,21 @@ public class FlightController {
 
     @GetMapping
     public ResponseEntity<List<Flight>> findFlights(
-            @RequestParam(required = false) String departure,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate departureDate,
-            @RequestParam(required = false) Integer price,
-            @RequestParam(required = false) Duration duration) {
-
-        List<Flight> filteredFlights = flightService.findByFilters(departure, departureDate, price != null ? price : -1, duration);
+            @RequestParam() String departure,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,
+            @RequestParam() Duration durationFrom,
+            @RequestParam() Duration durationTo,
+            @RequestParam() int priceMin,
+            @RequestParam() int priceMax
+    ) {
+        List<Flight> filteredFlights = flightService.findByFilters(
+                departure,
+                departureDate,
+                priceMin,
+                priceMax,
+                durationFrom,
+                durationTo
+        );
         return ResponseEntity.ok(filteredFlights);
-    }
-
-    @PostMapping
-    public ResponseEntity<?> save(@RequestBody Flight flight) {
-        System.out.println(flight);
-        Flight savedFlight = flightService.saveFlight(flight);
-        return ResponseEntity.ok(savedFlight);
     }
 }
