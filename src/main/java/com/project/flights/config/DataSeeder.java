@@ -27,7 +27,7 @@ public class DataSeeder {
             for (int i = 0; i < 500; i++) {
                 String departure = departureCapitals.get(random.nextInt(departureCapitals.size()));
                 String destination = faker.country().capital();
-                LocalDateTime departureTime = LocalDateTime.now().plusDays(random.nextInt(30)).plusHours(random.nextInt(24));
+                LocalDateTime departureTime = LocalDateTime.now().plusDays(random.nextInt(7)).plusHours(random.nextInt(24));
                 LocalDateTime arrivalTime = departureTime.plusHours(random.nextInt(3)+1).plusMinutes(random.nextInt(60));
 
                 Duration duration = Duration.between(departureTime, arrivalTime);
