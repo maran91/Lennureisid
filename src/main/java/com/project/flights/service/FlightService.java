@@ -1,5 +1,7 @@
 package com.project.flights.service;
 
+import com.project.flights.dto.FlightDTO;
+import com.project.flights.mapper.FlightMapper;
 import com.project.flights.model.Flight;
 import com.project.flights.repository.FlightRepository;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,6 +23,10 @@ public class FlightService {
         this.flightRepository = flightRepository;
     }
 
+    public Flight findById(Long id) {
+        return flightRepository.findById(id).orElse(null);
+    }
+
     public List<Flight> findByDynamicFilters(Map<String, String> filters) {
         Specification<Flight> spec = Specification.where(null);
 
@@ -29,10 +35,8 @@ public class FlightService {
             LocalDateTime startOfDay = date.atStartOfDay();
             LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
-            if (filters.containsKey("departureDate")) {
-                spec = spec.and((root, query, cb) ->
-                        cb.between(root.get("departureTime"), startOfDay, endOfDay));
-            }
+            spec = spec.and((root, query, cb) ->
+                    cb.between(root.get("departureTime"), startOfDay, endOfDay));
         }
 
         if (filters.containsKey("departure")) {
@@ -49,15 +53,23 @@ public class FlightService {
             spec = spec.and((root, query, cb) ->
                     cb.lessThanOrEqualTo(root.get("price"), Integer.parseInt(filters.get("priceMax"))));
         }
+
         if (filters.containsKey("durationFrom")) {
             spec = spec.and((root, query, cb) ->
                     cb.greaterThanOrEqualTo(root.get("flightDuration"), Duration.parse(filters.get("durationFrom"))));
         }
+
         if (filters.containsKey("durationTo")) {
             spec = spec.and((root, query, cb) ->
                     cb.lessThanOrEqualTo(root.get("flightDuration"), Duration.parse(filters.get("durationTo"))));
         }
 
         return flightRepository.findAll(spec);
+    }
+
+    public List<FlightDTO> mapToDTOList(List<Flight> flights) {
+        return flights.stream()
+                .map(FlightMapper::toDTO)
+                .toList();
     }
 }
